@@ -33,7 +33,7 @@ class Map:
         self.generate()
         self.max_height = self.map.max()
         self.sun = sun_pos
-        self.sun[2] = self.max_height + 3
+        self.sun[2] = self.max_height + 10
 
     def generate(self):
         for x in range(self.width):
@@ -41,12 +41,12 @@ class Map:
                 dist_centre = math.sqrt(
                     (self.width / 2 - x) ** 2 + (self.height / 2 - y) ** 2
                 )
-                self.map[x][y] = 10 - dist_centre + np.random.normal(5, 2)
-                # self.map[x][y] = (
-                #     self.height / 2
-                #     + self.width / 2
-                #     - (abs((self.width / 2) - x) + abs((self.height / 2) - y))
-                # ) - np.random.normal(10, 3)
+                self.map[x][y] = (
+                    10
+                    - math.log(dist_centre * 10 + 0.01)
+                    - dist_centre
+                    + np.random.normal(2, 1)
+                )
 
     def draw(self, screen):
         for x in range(self.width):
