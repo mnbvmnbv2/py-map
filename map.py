@@ -33,7 +33,7 @@ class Map:
         self.generate()
         self.max_height = self.map.max()
         self.sun = sun_pos
-        self.sun[2] = self.max_height + 10
+        self.sun[2] = self.max_height + 15
 
     def generate(self):
         for x in range(self.width):
@@ -130,8 +130,14 @@ class Map:
         # colors[int(self.map[x, y])]
 
     def move_sun(self):
-        self.sun[0] = self.sun[0] + np.random.randint(-1, 2)
-        self.sun[1] = self.sun[1] + np.random.randint(-1, 2)
+        # direction centre
+        centre = np.array([self.width / 2, self.height / 2])
+        sun_dir = centre - np.array(self.sun[:2])
+        sun_move_x = sun_dir[1] / 10
+        sun_move_y = -sun_dir[0] / 10
+        # move sun
+        self.sun[0] = self.sun[0] + sun_move_x
+        self.sun[1] = self.sun[1] + sun_move_y
         # clip to be inside map
         self.sun[0] = np.clip(self.sun[0], 0, self.width - 1)
         self.sun[1] = np.clip(self.sun[1], 0, self.height - 1)
@@ -142,7 +148,7 @@ def main():
     # return
     # logging.basicConfig(level=logging.DEBUG)
     pygame.init()
-    map = Map(30, 30, [20, 20, 0], block_size=20)
+    map = Map(30, 30, [5, 5, 0], block_size=20)
     screen = pygame.display.set_mode((map.full_width, map.full_height))
     pygame.display.set_caption("Map")
     clock = pygame.time.Clock()
