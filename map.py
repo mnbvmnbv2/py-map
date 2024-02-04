@@ -4,16 +4,16 @@ import math
 import time
 import numpy as np
 import pygame as pygame
-from pygame.color import Color
 
+# range and value
 colors = (
-    (0, 0, 153),
-    (0, 204, 255),
-    (255, 255, 204),
-    (102, 255, 51),
-    (0, 102, 0),
-    (137, 144, 144),
-    (245, 245, 245),
+    (-10, (0.6, 0.8, 0.8)),  # deep water
+    (0, (0.5, 0.8, 0.8)),  # shallow water
+    (1, (0.15, 0.6, 0.8)),  # sand
+    (3, (0.27, 0.6, 0.8)),  # grass
+    (6, (0.22, 0.6, 0.5)),  # forest
+    (15, (0.5, 0.1, 0.3)),  # mountain
+    (float("inf"), (0.5, 0.05, 0.9)),  # snow
 )
 
 
@@ -30,7 +30,10 @@ class Map:
         self.logger = logging.getLogger(__name__)
 
         # x, y ,z
+        self.generate()
+        self.max_height = self.map.max()
         self.sun = sun_pos
+        self.sun[2] = self.max_height + 1
 
     def generate(self):
         for x in range(self.width):
@@ -39,12 +42,11 @@ class Map:
                     self.height / 2
                     + self.width / 2
                     - (abs((self.width / 2) - x) + abs((self.height / 2) - y))
-                ) - np.random.normal(0, 2)
-        # scale map to 0-6
-        self.map = self.map - self.map.min()
-        self.map = (self.map / self.map.max()) * 6
+                ) - np.random.normal(10, 3)
+        # self.map = self.map - self.map.min()
+        # self.map = (self.map / self.map.max()) * 6
         # round to nearest integer
-        self.map = np.round(self.map)
+        # self.map = np.round(self.map)
 
     def draw(self, screen):
         for x in range(self.width):
@@ -68,34 +70,44 @@ class Map:
         divider = dist_max * 2
         ray = (dist_x / divider, dist_y / divider, dist_z / divider)
         total_dist = math.sqrt(dist_x**2 + dist_y**2 + dist_z**2)
-        self.logger.debug(f"ray for {x}, {y} is {ray} with total_dist {total_dist}")
+        # self.logger.debug(f"ray for {x}, {y} is {ray} with total_dist {total_dist}")
         ray_x = x
         ray_y = y
         ray_z = self.map[x, y]
-        self.logger.debug(divider)
+
+        height = self.map[x, y]
+        # get color at block
+        for j in range(len(colors)):
+            if height < colors[j][0]:
+                pre_color = colors[j][1]
+                break
+        blocked = False
+
         for i in range(int(divider)):
             ray_x += ray[0]
             ray_y += ray[1]
             ray_z += ray[2]
-            self.logger.debug(f"ray at {ray_x}, {ray_y}, {ray_z}")
+            # self.logger.debug(f"ray at {ray_x}, {ray_y}, {ray_z}")
             # check height of block we are in
             block_x = int(np.round(ray_x))
             block_y = int(np.round(ray_y))
-            height = self.map[block_x, block_y]
-            self.logger.debug(f"height of block {block_x}, {block_y} is {height}")
-            if ray_z < height:
+            curr_height = self.map[block_x, block_y]
+            # self.logger.debug(f"height of block {block_x}, {block_y} is {curr_height}")
+            if ray_z < curr_height:
                 # blocked
-                color = tuple(
-                    round(v * 255)
-                    for v in colorsys.hsv_to_rgb(total_dist / self.max_dist, 0.5, 0.2)
-                )
-                self.logger.debug(f"blocked, we get color {color}")
-                return color
-        color = tuple(
-            round(v * 255)
-            for v in colorsys.hsv_to_rgb(total_dist / self.max_dist, 0.5, 0.5)
+                self.logger.debug("blocked")
+                blocked = True
+                break
+
+        # shade color
+        color = (
+            pre_color[0],
+            pre_color[1],
+            pre_color[2] - 0.1 if blocked else pre_color[2],
         )
-        self.logger.debug(f"not blocked, we get color {color}")
+        # convert to 0-255 and rgb
+        color = tuple(round(v * 255) for v in colorsys.hsv_to_rgb(*color))
+        # self.logger.debug(f"blocked: {blocked}, we get color {color}")
         return color
         # colors[int(self.map[x, y])]
 
@@ -110,20 +122,19 @@ class Map:
 def main():
     # print(colorsys.hsv_to_rgb(0.9, 0.5, 0.9))
     # return
-    # logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.DEBUG)
     pygame.init()
-    map = Map(30, 30, [9, 9, 9])
+    map = Map(30, 30, [2, 2, 9], block_size=20)
     screen = pygame.display.set_mode((map.full_width, map.full_height))
     pygame.display.set_caption("Map")
     clock = pygame.time.Clock()
     running = True
-    map.generate()
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
         screen.fill((255, 255, 255))
-        map.logger.debug(map.map)
+        # map.logger.debug(map.map)
         map.move_sun()
         map.draw(screen)
         pygame.display.flip()
