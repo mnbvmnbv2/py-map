@@ -33,20 +33,20 @@ class Map:
         self.generate()
         self.max_height = self.map.max()
         self.sun = sun_pos
-        self.sun[2] = self.max_height + 1
+        self.sun[2] = self.max_height + 3
 
     def generate(self):
         for x in range(self.width):
             for y in range(self.height):
-                self.map[x][y] = (
-                    self.height / 2
-                    + self.width / 2
-                    - (abs((self.width / 2) - x) + abs((self.height / 2) - y))
-                ) - np.random.normal(10, 3)
-        # self.map = self.map - self.map.min()
-        # self.map = (self.map / self.map.max()) * 6
-        # round to nearest integer
-        # self.map = np.round(self.map)
+                dist_centre = math.sqrt(
+                    (self.width / 2 - x) ** 2 + (self.height / 2 - y) ** 2
+                )
+                self.map[x][y] = 10 - dist_centre + np.random.normal(5, 2)
+                # self.map[x][y] = (
+                #     self.height / 2
+                #     + self.width / 2
+                #     - (abs((self.width / 2) - x) + abs((self.height / 2) - y))
+                # ) - np.random.normal(10, 3)
 
     def draw(self, screen):
         for x in range(self.width):
@@ -62,10 +62,22 @@ class Map:
                     ),
                 )
 
+    def draw_sun(self, screen):
+        pygame.draw.circle(
+            screen,
+            (255, 255, 0),
+            (self.sun[0] * self.block_size, self.sun[1] * self.block_size),
+            10,
+        )
+
     def get_color(self, x, y):
         dist_x = self.sun[0] - x
         dist_y = self.sun[1] - y
-        dist_z = self.sun[2] - self.map[x, y]
+        # if water, we get shading from z 0
+        if self.map[x, y] < 0:
+            dist_z = self.sun[2]
+        else:
+            dist_z = self.sun[2] - self.map[x, y]
         dist_max = max(dist_x, dist_y, dist_z)
         divider = dist_max * 2
         ray = (dist_x / divider, dist_y / divider, dist_z / divider)
@@ -73,7 +85,10 @@ class Map:
         # self.logger.debug(f"ray for {x}, {y} is {ray} with total_dist {total_dist}")
         ray_x = x
         ray_y = y
-        ray_z = self.map[x, y]
+        if self.map[x, y] < 0:
+            ray_z = 0
+        else:
+            ray_z = self.map[x, y]
 
         height = self.map[x, y]
         # get color at block
@@ -92,6 +107,9 @@ class Map:
             block_x = int(np.round(ray_x))
             block_y = int(np.round(ray_y))
             curr_height = self.map[block_x, block_y]
+            # water height during shading is 0
+            if curr_height < 0:
+                curr_height = 0
             # self.logger.debug(f"height of block {block_x}, {block_y} is {curr_height}")
             if ray_z < curr_height:
                 # blocked
@@ -122,9 +140,9 @@ class Map:
 def main():
     # print(colorsys.hsv_to_rgb(0.9, 0.5, 0.9))
     # return
-    logging.basicConfig(level=logging.DEBUG)
+    # logging.basicConfig(level=logging.DEBUG)
     pygame.init()
-    map = Map(30, 30, [2, 2, 9], block_size=20)
+    map = Map(30, 30, [20, 20, 0], block_size=20)
     screen = pygame.display.set_mode((map.full_width, map.full_height))
     pygame.display.set_caption("Map")
     clock = pygame.time.Clock()
@@ -137,6 +155,7 @@ def main():
         # map.logger.debug(map.map)
         map.move_sun()
         map.draw(screen)
+        map.draw_sun(screen)
         pygame.display.flip()
         clock.tick(60)
         # time.sleep(2)
