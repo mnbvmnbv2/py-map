@@ -1,8 +1,10 @@
+import colorsys
 import logging
 import math
 import time
 import numpy as np
 import pygame as pygame
+from pygame.color import Color
 
 colors = (
     (0, 0, 153),
@@ -23,6 +25,7 @@ class Map:
         self.full_width = width * block_size
         self.full_height = height * block_size
         self.map = np.zeros((width, height))
+        self.max_dist = math.sqrt(width**2 + height**2 + sun_pos[2] ** 2)
 
         self.logger = logging.getLogger(__name__)
 
@@ -82,14 +85,19 @@ class Map:
             self.logger.debug(f"height of block {block_x}, {block_y} is {height}")
             if ray_z < height:
                 # blocked
-                self.logger.debug("blocked")
-                return (0, 0, 0)
-        # ray_slope = max((self.sun[2] - self.map[x, y]), 0) / (
-        #     math.sqrt((self.sun[0] - x) ** 2 + (self.sun[1] - y) ** 2)
-        # )
-        # self.logger.debug(f"ray_slope for {x}, {y} is {ray_slope}")
-        self.logger.debug(f"not blocked, we get color {colors[int(self.map[x, y])]}")
-        return colors[int(self.map[x, y])]
+                color = tuple(
+                    round(v * 255)
+                    for v in colorsys.hsv_to_rgb(total_dist / self.max_dist, 0.5, 0.2)
+                )
+                self.logger.debug(f"blocked, we get color {color}")
+                return color
+        color = tuple(
+            round(v * 255)
+            for v in colorsys.hsv_to_rgb(total_dist / self.max_dist, 0.5, 0.5)
+        )
+        self.logger.debug(f"not blocked, we get color {color}")
+        return color
+        # colors[int(self.map[x, y])]
 
     def move_sun(self):
         self.sun[0] = self.sun[0] + np.random.randint(-1, 2)
@@ -100,6 +108,9 @@ class Map:
 
 
 def main():
+    # print(colorsys.hsv_to_rgb(0.9, 0.5, 0.9))
+    # return
+    # logging.basicConfig(level=logging.DEBUG)
     pygame.init()
     map = Map(30, 30, [9, 9, 9])
     screen = pygame.display.set_mode((map.full_width, map.full_height))
@@ -116,7 +127,7 @@ def main():
         map.move_sun()
         map.draw(screen)
         pygame.display.flip()
-        clock.tick(1)
+        clock.tick(60)
         # time.sleep(2)
 
 
