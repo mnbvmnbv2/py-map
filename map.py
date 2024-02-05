@@ -106,6 +106,14 @@ class Map:
             # check height of block we are in
             block_x = int(np.round(ray_x))
             block_y = int(np.round(ray_y))
+            # break if outside of map
+            if (
+                block_x < 0
+                or block_x >= self.width
+                or block_y < 0
+                or block_y >= self.height
+            ):
+                break
             curr_height = self.map[block_x, block_y]
             # water height during shading is 0
             if curr_height < 0:
@@ -139,8 +147,8 @@ class Map:
         self.sun[0] = self.sun[0] + sun_move_x
         self.sun[1] = self.sun[1] + sun_move_y
         # clip to be inside map
-        self.sun[0] = np.clip(self.sun[0], 0, self.width - 1)
-        self.sun[1] = np.clip(self.sun[1], 0, self.height - 1)
+        # self.sun[0] = np.clip(self.sun[0], 0, self.width - 1)
+        # self.sun[1] = np.clip(self.sun[1], 0, self.height - 1)
 
 
 def main():
@@ -148,7 +156,7 @@ def main():
     # return
     # logging.basicConfig(level=logging.DEBUG)
     pygame.init()
-    map = Map(30, 30, [5, 5, 0], block_size=20)
+    map = Map(40, 40, [10, -10, 0], block_size=20)
     screen = pygame.display.set_mode((map.full_width, map.full_height))
     pygame.display.set_caption("Map")
     clock = pygame.time.Clock()
