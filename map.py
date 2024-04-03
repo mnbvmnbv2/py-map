@@ -27,11 +27,10 @@ class Map:
         self.map = np.zeros((width, height))
         self.pre_colors = []
         self.pixel_size = pixel_size
-        # self.max_dist = math.sqrt(width**2 + height**2 + sun_pos[2] ** 2)
+        assert self.block_size % self.pixel_size == 0
 
         self.logger = logging.getLogger(__name__)
 
-        # x, y ,z
         self.generate()
         self.generate_sun_path()
         self.max_height = self.map.max()
@@ -74,20 +73,6 @@ class Map:
         self.sun_zs = 50 + np.sin(np.linspace(0, np.pi * 2, len(self.sun_xs))) * 55
 
     def draw(self, screen):
-        # for x in range(self.width):
-        #     for y in range(self.height):
-        #         pygame.draw.rect(
-        #             screen,
-        #             self.get_color(x, y),
-        #             (
-        #                 x * self.block_size,
-        #                 y * self.block_size,
-        #                 self.block_size,
-        #                 self.block_size,
-        #             ),
-        #         )
-
-        assert self.block_size % self.pixel_size == 0
         pixels_per_block = self.block_size // self.pixel_size
 
         for x in range(self.width * pixels_per_block):
@@ -194,10 +179,9 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
         screen.fill((255, 255, 255))
-        # map.logger.debug(map.map)
         map.move_sun()
         map.draw(screen)
-        map.draw_sun(screen)
+        # map.draw_sun(screen)
         pygame.display.flip()
         clock.tick(60)
         # time.sleep(2)
