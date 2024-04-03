@@ -64,7 +64,7 @@ class Map:
         self.sun_xs = []
         self.sun_ys = []
         self.sun_pos = 0
-        for i in range(0, 360, 15):
+        for i in range(0, 360, 10):
             x, y = f(self.width / 2, self.height / 2, 10, i)
             self.sun_xs.append(x)
             self.sun_ys.append(y)
@@ -99,7 +99,7 @@ class Map:
             dist_z = self.sun[2]
         else:
             dist_z = self.sun[2] - self.map[x, y]
-        dist_max = max(dist_x, dist_y, dist_z)
+        dist_max = max(abs(dist_x), abs(dist_y)) + 1
         divider = dist_max * 2
         ray = (dist_x / divider, dist_y / divider, dist_z / divider)
         ray_x = x
@@ -110,6 +110,11 @@ class Map:
             ray_z = self.map[x, y]
 
         blocked = False
+
+        # sun below "horizon"
+        if ray[2] < 0:
+            blocked = True
+            divider = 0
 
         for i in range(int(divider)):
             ray_x += ray[0]
