@@ -3,6 +3,7 @@ import logging
 import math
 import numpy as np
 import pygame as pygame
+from math import floor, ceil
 
 # range and value
 colors = (
@@ -72,16 +73,33 @@ class Map:
         self.sun_zs = 50 + np.sin(np.linspace(0, np.pi * 2, len(self.sun_xs))) * 55
 
     def draw(self, screen):
-        for x in range(self.width):
-            for y in range(self.height):
+        # for x in range(self.width):
+        #     for y in range(self.height):
+        #         pygame.draw.rect(
+        #             screen,
+        #             self.get_color(x, y),
+        #             (
+        #                 x * self.block_size,
+        #                 y * self.block_size,
+        #                 self.block_size,
+        #                 self.block_size,
+        #             ),
+        #         )
+
+        pixel_size = 10
+        assert self.block_size % pixel_size == 0
+        pixels_per_block = self.block_size // pixel_size
+
+        for x in range(self.width * pixels_per_block):
+            for y in range(self.height * pixels_per_block):
                 pygame.draw.rect(
                     screen,
-                    self.get_color(x, y),
+                    self.get_color(x / pixels_per_block, y / pixels_per_block),
                     (
-                        x * self.block_size,
-                        y * self.block_size,
-                        self.block_size,
-                        self.block_size,
+                        x * pixel_size,
+                        y * pixel_size,
+                        pixel_size,
+                        pixel_size,
                     ),
                 )
 
@@ -94,9 +112,15 @@ class Map:
         )
 
     def get_color(self, x, y):
+        # print(x, y)
+        # print(self.width, self.height)
+
+        block_x = floor(x)
+        block_y = floor(y)
+
         blocked = False
 
-        height = max(self.map[x, y], 0)
+        height = max(self.map[block_x, block_y], 0)
         start_point = (x, y, height)
 
         # sun below "horizon"
@@ -113,20 +137,20 @@ class Map:
         # points on form (x, y, ray_z)
         if not blocked:
             for point in points.tolist():
-                block_x = round(point[0])
-                block_y = round(point[1])
+                block_x_ = round(point[0])
+                block_y_ = round(point[1])
                 curr_height = point[2]
-                block_height = self.map[block_x, block_y]
                 if curr_height > self.max_height:
                     break
                 # break if outside of map
                 if (
-                    block_x < 0
-                    or block_x >= self.width
-                    or block_y < 0
-                    or block_y >= self.height
+                    block_x_ < 0
+                    or block_x_ >= self.width
+                    or block_y_ < 0
+                    or block_y_ >= self.height
                 ):
                     break
+                block_height = self.map[block_x_, block_y_]
                 # water height during shading is 0
                 if curr_height < 0:
                     curr_height = 0
@@ -135,7 +159,7 @@ class Map:
                     break
 
         # shade color
-        pre_color = self.pre_colors[x][y]
+        pre_color = self.pre_colors[block_x][block_y]
         color = (
             pre_color[0],
             pre_color[1],
@@ -159,7 +183,7 @@ class Map:
 def main():
     # logging.basicConfig(level=logging.DEBUG)
     pygame.init()
-    map = Map(80, 50, block_size=10)
+    map = Map(16 * 3, 9 * 3, block_size=10)
     screen = pygame.display.set_mode((map.full_width, map.full_height))
     pygame.display.set_caption("Map")
     clock = pygame.time.Clock()
