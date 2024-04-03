@@ -10,14 +10,14 @@ colors = (
     (0, (0.5, 0.8, 0.8)),  # shallow water
     (2, (0.15, 0.6, 0.8)),  # sand
     (5, (0.27, 0.6, 0.8)),  # grass
-    (10, (0.22, 0.6, 0.5)),  # forest
+    (10, (0.22, 0.5, 0.45)),  # forest
     (25, (0.5, 0.1, 0.3)),  # mountain
     (float("inf"), (0.5, 0.05, 0.9)),  # snow
 )
 
 
 class Map:
-    def __init__(self, width, height, sun_pos, block_size=20):
+    def __init__(self, width, height, block_size=20):
         self.width = width
         self.height = height
         self.block_size = block_size
@@ -25,7 +25,7 @@ class Map:
         self.full_height = height * block_size
         self.map = np.zeros((width, height))
         self.pre_colors = []
-        self.max_dist = math.sqrt(width**2 + height**2 + sun_pos[2] ** 2)
+        # self.max_dist = math.sqrt(width**2 + height**2 + sun_pos[2] ** 2)
 
         self.logger = logging.getLogger(__name__)
 
@@ -33,8 +33,7 @@ class Map:
         self.generate()
         self.generate_sun_path()
         self.max_height = self.map.max()
-        self.sun = sun_pos
-        self.sun[2] = self.max_height + 30
+        self.sun = [0, 0, 0]
 
     def generate(self):
         for x in range(self.width):
@@ -62,13 +61,13 @@ class Map:
             angle = angle / (np.pi * 18)
             return x + r * np.cos(angle), y + r * np.sin(angle)
 
-        self.xs = []
-        self.ys = []
+        self.sun_xs = []
+        self.sun_ys = []
         self.sun_pos = 0
         for i in range(0, 360, 15):
             x, y = f(self.width / 2, self.height / 2, 10, i)
-            self.xs.append(x)
-            self.ys.append(y)
+            self.sun_xs.append(x)
+            self.sun_ys.append(y)
 
     def draw(self, screen):
         for x in range(self.width):
@@ -148,27 +147,22 @@ class Map:
         # convert to 0-255 and rgb
         color = tuple(round(v * 255) for v in colorsys.hsv_to_rgb(*color))
         return color
-        # colors[int(self.map[x, y])]
 
     def move_sun(self):
         # direction centre
         self.sun_pos += 1
-        if self.sun_pos >= len(self.xs):
+        if self.sun_pos >= len(self.sun_xs):
             self.sun_pos = 0
         # move sun
-        self.sun[0] = self.xs[self.sun_pos]
-        self.sun[1] = self.ys[self.sun_pos]
+        self.sun[0] = self.sun_xs[self.sun_pos]
+        self.sun[1] = self.sun_ys[self.sun_pos]
         self.sun[2] = 50
-        # time.sleep(1)
-        # clip to be inside map
-        # self.sun[0] = np.clip(self.sun[0], 0, self.width - 1)
-        # self.sun[1] = np.clip(self.sun[1], 0, self.height - 1)
 
 
 def main():
     # logging.basicConfig(level=logging.DEBUG)
     pygame.init()
-    map = Map(50, 30, [10, 10, 0], block_size=15)
+    map = Map(50, 30, block_size=20)
     screen = pygame.display.set_mode((map.full_width, map.full_height))
     pygame.display.set_caption("Map")
     clock = pygame.time.Clock()
