@@ -86,7 +86,7 @@ class Map:
         #             ),
         #         )
 
-        pixel_size = 10
+        pixel_size = 20
         assert self.block_size % pixel_size == 0
         pixels_per_block = self.block_size // pixel_size
 
@@ -94,7 +94,10 @@ class Map:
             for y in range(self.height * pixels_per_block):
                 pygame.draw.rect(
                     screen,
-                    self.get_color(x / pixels_per_block, y / pixels_per_block),
+                    self.get_color(
+                        x / pixels_per_block + 1 / (pixels_per_block * 2),
+                        y / pixels_per_block + 1 / (pixels_per_block * 2),
+                    ),
                     (
                         x * pixel_size,
                         y * pixel_size,
@@ -112,9 +115,6 @@ class Map:
         )
 
     def get_color(self, x, y):
-        # print(x, y)
-        # print(self.width, self.height)
-
         block_x = floor(x)
         block_y = floor(y)
 
@@ -128,7 +128,7 @@ class Map:
             blocked = True
 
         line = np.linspace(start_point, self.sun, 100)
-        rounded_line = np.round(line[:, :2])
+        rounded_line = np.floor(line[:, :2])
         unique_xs = np.unique(rounded_line[:, 0], 1)[1]
         unqiue_ys = np.unique(rounded_line[:, 1], 1)[1]
         unique = np.unique(np.hstack((unique_xs, unqiue_ys)))
@@ -137,8 +137,8 @@ class Map:
         # points on form (x, y, ray_z)
         if not blocked:
             for point in points.tolist():
-                block_x_ = round(point[0])
-                block_y_ = round(point[1])
+                block_x_ = floor(point[0])
+                block_y_ = floor(point[1])
                 curr_height = point[2]
                 if curr_height > self.max_height:
                     break
@@ -183,7 +183,7 @@ class Map:
 def main():
     # logging.basicConfig(level=logging.DEBUG)
     pygame.init()
-    map = Map(16 * 3, 9 * 3, block_size=10)
+    map = Map(16 * 3, 9 * 3, block_size=20)
     screen = pygame.display.set_mode((map.full_width, map.full_height))
     pygame.display.set_caption("Map")
     clock = pygame.time.Clock()
