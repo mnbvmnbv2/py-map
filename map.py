@@ -109,30 +109,29 @@ class Map:
         unique = np.unique(np.hstack((unique_xs, unqiue_ys)))
         points = line[unique]
 
-        points
-
         # points on form (x, y, ray_z)
-        for point in points.tolist():
-            block_x = round(point[0])
-            block_y = round(point[1])
-            curr_height = point[2]
-            block_height = self.map[block_x, block_y]
-            if curr_height > self.max_height:
-                break
-            # break if outside of map
-            if (
-                block_x < 0
-                or block_x >= self.width
-                or block_y < 0
-                or block_y >= self.height
-            ):
-                break
-            # water height during shading is 0
-            if curr_height < 0:
-                curr_height = 0
-            if curr_height < block_height:
-                blocked = True
-                break
+        if not blocked:
+            for point in points.tolist():
+                block_x = round(point[0])
+                block_y = round(point[1])
+                curr_height = point[2]
+                block_height = self.map[block_x, block_y]
+                if curr_height > self.max_height:
+                    break
+                # break if outside of map
+                if (
+                    block_x < 0
+                    or block_x >= self.width
+                    or block_y < 0
+                    or block_y >= self.height
+                ):
+                    break
+                # water height during shading is 0
+                if curr_height < 0:
+                    curr_height = 0
+                if curr_height < block_height:
+                    blocked = True
+                    break
 
         # shade color
         pre_color = self.pre_colors[x][y]
