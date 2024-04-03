@@ -69,6 +69,8 @@ class Map:
             self.sun_xs.append(x)
             self.sun_ys.append(y)
 
+        self.sun_zs = 50 + np.sin(np.linspace(0, np.pi * 2, len(self.sun_xs))) * 55
+
     def draw(self, screen):
         for x in range(self.width):
             for y in range(self.height):
@@ -102,7 +104,6 @@ class Map:
             blocked = True
 
         line = np.linspace(start_point, self.sun, 100)
-        # remove part of line that is over max height
         rounded_line = np.round(line[:, :2])
         unique_xs = np.unique(rounded_line[:, 0], 1)[1]
         unqiue_ys = np.unique(rounded_line[:, 1], 1)[1]
@@ -152,19 +153,19 @@ class Map:
         # move sun
         self.sun[0] = self.sun_xs[self.sun_pos]
         self.sun[1] = self.sun_ys[self.sun_pos]
-        self.sun[2] = 50
+        self.sun[2] = self.sun_zs[self.sun_pos]
 
 
 def main():
     # logging.basicConfig(level=logging.DEBUG)
     pygame.init()
-    map = Map(50, 30, block_size=20)
+    map = Map(80, 50, block_size=10)
     screen = pygame.display.set_mode((map.full_width, map.full_height))
     pygame.display.set_caption("Map")
     clock = pygame.time.Clock()
     running = True
-    for i in range(30):
-        # while running:
+    # for i in range(30):
+    while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
