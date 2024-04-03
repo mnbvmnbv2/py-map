@@ -92,40 +92,33 @@ class Map:
         )
 
     def get_color(self, x, y):
-        dist_x = self.sun[0] - x
-        dist_y = self.sun[1] - y
-        # if water, we get shading from z 0
-        if self.map[x, y] < 0:
-            dist_z = self.sun[2]
-        else:
-            dist_z = self.sun[2] - self.map[x, y]
-        dist_max = max(abs(dist_x), abs(dist_y)) + 1
-        divider = dist_max * 2
-        ray = (dist_x / divider, dist_y / divider, dist_z / divider)
-        ray_x = x
-        ray_y = y
-        if self.map[x, y] < 0:
-            ray_z = 0
-        else:
-            ray_z = self.map[x, y]
-
         blocked = False
 
-        # sun below "horizon"
-        if ray[2] < 0:
-            blocked = True
-            divider = 0
+        height = max(self.map[x, y], 0)
+        start_point = (x, y, height)
 
-        for i in range(int(divider)):
-            ray_x += ray[0]
-            ray_y += ray[1]
-            ray_z += ray[2]
-            self.logger.debug(f"ray at {ray_x}, {ray_y}, {ray_z}")
-            if ray_z > self.max_height:
+        # sun below "horizon"
+        if self.sun[2] < height:
+            blocked = True
+
+        line = np.linspace(start_point, self.sun, 100)
+        # remove part of line that is over max height
+        rounded_line = np.round(line[:, :2])
+        unique_xs = np.unique(rounded_line[:, 0], 1)[1]
+        unqiue_ys = np.unique(rounded_line[:, 1], 1)[1]
+        unique = np.unique(np.hstack((unique_xs, unqiue_ys)))
+        points = line[unique]
+
+        points
+
+        # points on form (x, y, ray_z)
+        for point in points.tolist():
+            block_x = round(point[0])
+            block_y = round(point[1])
+            curr_height = point[2]
+            block_height = self.map[block_x, block_y]
+            if curr_height > self.max_height:
                 break
-            # check height of block we are in
-            block_x = round(ray_x)
-            block_y = round(ray_y)
             # break if outside of map
             if (
                 block_x < 0
@@ -134,11 +127,10 @@ class Map:
                 or block_y >= self.height
             ):
                 break
-            curr_height = self.map[block_x, block_y]
             # water height during shading is 0
             if curr_height < 0:
                 curr_height = 0
-            if ray_z < curr_height:
+            if curr_height < block_height:
                 blocked = True
                 break
 
@@ -172,8 +164,8 @@ def main():
     pygame.display.set_caption("Map")
     clock = pygame.time.Clock()
     running = True
-    # for i in range(10):
-    while running:
+    for i in range(30):
+        # while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
