@@ -18,7 +18,7 @@ colors = (
 
 
 class Map:
-    def __init__(self, width, height, block_size=20):
+    def __init__(self, width, height, block_size=20, pixel_size=20):
         self.width = width
         self.height = height
         self.block_size = block_size
@@ -26,6 +26,7 @@ class Map:
         self.full_height = height * block_size
         self.map = np.zeros((width, height))
         self.pre_colors = []
+        self.pixel_size = pixel_size
         # self.max_dist = math.sqrt(width**2 + height**2 + sun_pos[2] ** 2)
 
         self.logger = logging.getLogger(__name__)
@@ -86,9 +87,8 @@ class Map:
         #             ),
         #         )
 
-        pixel_size = 20
-        assert self.block_size % pixel_size == 0
-        pixels_per_block = self.block_size // pixel_size
+        assert self.block_size % self.pixel_size == 0
+        pixels_per_block = self.block_size // self.pixel_size
 
         for x in range(self.width * pixels_per_block):
             for y in range(self.height * pixels_per_block):
@@ -99,10 +99,10 @@ class Map:
                         y / pixels_per_block + 1 / (pixels_per_block * 2),
                     ),
                     (
-                        x * pixel_size,
-                        y * pixel_size,
-                        pixel_size,
-                        pixel_size,
+                        x * self.pixel_size,
+                        y * self.pixel_size,
+                        self.pixel_size,
+                        self.pixel_size,
                     ),
                 )
 
@@ -183,7 +183,7 @@ class Map:
 def main():
     # logging.basicConfig(level=logging.DEBUG)
     pygame.init()
-    map = Map(16 * 3, 9 * 3, block_size=20)
+    map = Map(16 * 3, 9 * 3, block_size=20, pixel_size=10)
     screen = pygame.display.set_mode((map.full_width, map.full_height))
     pygame.display.set_caption("Map")
     clock = pygame.time.Clock()
