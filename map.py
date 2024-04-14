@@ -2,7 +2,9 @@ import colorsys
 import logging
 import math
 import numpy as np
-import pygame as pygame
+import pygame as pg
+import moderngl as mgl
+import glm
 from math import floor, ceil
 
 from generation import basic_map, map_from_pooled_noise
@@ -72,7 +74,7 @@ class Map:
 
         for x in range(self.width * pixels_per_block):
             for y in range(self.height * pixels_per_block):
-                pygame.draw.rect(
+                pg.draw.rect(
                     screen,
                     self.get_color(
                         x / pixels_per_block + 1 / (pixels_per_block * 2),
@@ -87,7 +89,7 @@ class Map:
                 )
 
     def draw_sun(self, screen):
-        pygame.draw.circle(
+        pg.draw.circle(
             screen,
             (255, 255, 0),
             (self.sun[0] * self.block_size, self.sun[1] * self.block_size),
@@ -158,31 +160,3 @@ class Map:
         self.sun[0] = self.sun_xs[self.sun_pos]
         self.sun[1] = self.sun_ys[self.sun_pos]
         self.sun[2] = self.sun_zs[self.sun_pos]
-
-
-def main():
-    # logging.basicConfig(level=logging.DEBUG)
-    pygame.init()
-    map = Map(16 * 5, 9 * 5, block_size=20, pixel_size=10)
-    screen = pygame.display.set_mode((map.full_width, map.full_height))
-    pygame.display.set_caption("Map")
-    clock = pygame.time.Clock()
-    running = True
-    # for i in range(30):
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-        screen.fill((255, 255, 255))
-        map.move_sun()
-        map.draw(screen)
-        # map.draw_sun(screen)
-        pygame.display.flip()
-        clock.tick(60)
-        # time.sleep(2)
-
-
-pygame.quit()
-
-if __name__ == "__main__":
-    main()

@@ -35,7 +35,6 @@ def map_from_pooled_noise(
 
 def basic_map(map: np.ndarray):
     width, height = map.shape
-    print(map.shape)
     for x in range(width):
         for y in range(height):
             dist_centre = math.sqrt((width / 2 - x) ** 2 + (height / 2 - y) ** 2)
