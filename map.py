@@ -5,6 +5,8 @@ import numpy as np
 import pygame as pygame
 from math import floor, ceil
 
+from generation import basic_map, map_from_pooled_noise
+
 # range and value
 colors = (
     (-8, (0.6, 0.6, 0.7)),  # deep water
@@ -37,18 +39,11 @@ class Map:
         self.sun = [0, 0, 0]
 
     def generate(self):
+        map_from_pooled_noise(self.map)
+        # print(self.map)
         for x in range(self.width):
             self.pre_colors.append([])
             for y in range(self.height):
-                dist_centre = math.sqrt(
-                    (self.width / 2 - x) ** 2 + (self.height / 2 - y) ** 2
-                )
-                self.map[x][y] = (
-                    25
-                    # - math.log(dist_centre * 10 + 0.01)
-                    - dist_centre * 2
-                    + np.random.normal(0, 1)
-                )
                 height = self.map[x, y]
                 # get color at block
                 for j in range(len(colors)):
@@ -168,7 +163,7 @@ class Map:
 def main():
     # logging.basicConfig(level=logging.DEBUG)
     pygame.init()
-    map = Map(16 * 3, 9 * 3, block_size=20, pixel_size=10)
+    map = Map(16 * 5, 9 * 5, block_size=20, pixel_size=10)
     screen = pygame.display.set_mode((map.full_width, map.full_height))
     pygame.display.set_caption("Map")
     clock = pygame.time.Clock()
