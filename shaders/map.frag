@@ -7,10 +7,13 @@ out vec4 fragColor;
 
 void main() {
     float height = pos.z;
-    if (height < 0.5) {
-        fragColor = vec4(0.0, 0.0, 1.0, 1.0);
-    } else {
-        fragColor = vec4(0.0, 1.0, 0.0, 1.0);
-    }
-    //fragColor = vec4(pos.z, 0, 0, 1.0);
+
+
+    // if (height < 0.5) {
+    //     fragColor = vec4(0.0, 0.0, 1.0, 1.0);
+    // } else {
+    //     fragColor = vec4(0.0, 1.0, 0.0, 1.0);
+    // }
+    // fragColor = vec4(pos.z, pos.x, pos.y, 1.0);
+    fragColor = vec4(pos.z, 0, 0, 1.0);
 }

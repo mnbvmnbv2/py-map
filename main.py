@@ -6,7 +6,10 @@ from meshes.map_mesh import MapMesh
 
 
 class GameEngine:
-    def __init__(self) -> None:
+    def __init__(self, width, height) -> None:
+        self.width = width
+        self.height = height
+
         pg.init()
         pg.display.gl_set_attribute(pg.GL_CONTEXT_MINOR_VERSION, 3)
         pg.display.gl_set_attribute(pg.GL_CONTEXT_MAJOR_VERSION, 3)
@@ -14,7 +17,9 @@ class GameEngine:
             pg.GL_CONTEXT_PROFILE_MASK, pg.GL_CONTEXT_PROFILE_CORE
         )
         pg.display.gl_set_attribute(pg.GL_MULTISAMPLEBUFFERS, 2)  # anti-aliasing
-        pg.display.set_mode((600, 600), pg.DOUBLEBUF | pg.OPENGL)
+        pg.display.set_mode(
+            (self.width * 30, self.height * 30), pg.DOUBLEBUF | pg.OPENGL
+        )
 
         self.ctx = mgl.create_context()
         self.ctx.enable(mgl.DEPTH_TEST | mgl.CULL_FACE | mgl.BLEND)
@@ -30,7 +35,7 @@ class GameEngine:
         self.on_init()
 
     def on_init(self):
-        map_mesh = MapMesh(self)
+        map_mesh = MapMesh(self, width=self.width, height=self.height)
         self.objects.append(map_mesh)
 
     def run(self):
@@ -69,7 +74,7 @@ class GameEngine:
 
 
 def main():
-    game = GameEngine()
+    game = GameEngine(20, 20)
     game.run()
 
 
