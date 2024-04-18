@@ -18,7 +18,7 @@ class GameEngine:
         )
         pg.display.gl_set_attribute(pg.GL_MULTISAMPLEBUFFERS, 2)  # anti-aliasing
         pg.display.set_mode(
-            (self.width * 30, self.height * 30), pg.DOUBLEBUF | pg.OPENGL
+            (self.height * 30, self.width * 30), pg.DOUBLEBUF | pg.OPENGL
         )
 
         self.ctx = mgl.create_context()
@@ -74,7 +74,7 @@ class GameEngine:
 
 
 def main():
-    game = GameEngine(20, 20)
+    game = GameEngine(25, 40)
     game.run()
 
 
