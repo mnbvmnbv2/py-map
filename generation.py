@@ -11,10 +11,8 @@ def pooled_noise(
     x: int = 0,
     y: int = 0,
     seed: int = 0,
-):
-    grid = torch.clip(
-        torch.normal(0, alpha, (width + beta * 2, height + beta * 2)), -1, 1
-    )
+) -> torch.Tensor:
+    grid = torch.clip(torch.normal(0, alpha, (width + beta * 2, height + beta * 2)), -1, 1)
     # grid = deterministic_grid(
     #     width + beta * 2, height + beta * 2, x - beta, y - beta, alpha, seed
     # )
@@ -25,22 +23,25 @@ def pooled_noise(
 
 
 def map_from_pooled_noise(
-    map: np.ndarray,
+    width: int,
+    height: int,
     alpha: float = 0.45,
     beta: int = 5,
-):
-    noise = pooled_noise(map.shape[0], map.shape[1], alpha, beta) * 80
-    map[:] = noise.numpy()
+) -> np.array:
+    noise = pooled_noise(width, height, alpha, beta) * 80
+    return noise.numpy()
 
 
-def basic_map(map: np.ndarray):
-    width, height = map.shape
+def basic_map(width: int, height: int) -> tuple[np.array, np.array, np.array]:
+    map = np.zeros((width, height))
     for x in range(width):
         for y in range(height):
             dist_centre = math.sqrt((width / 2 - x) ** 2 + (height / 2 - y) ** 2)
-            map[x, y] = (
-                25
-                # - math.log(dist_centre * 10 + 0.01)
-                - dist_centre * 2
-                + np.random.normal(0, 1)
-            )
+            map[x, y] = 25 - dist_centre * 2 + np.random.normal(0, 1)
+
+    deriv_x = np.gradient(map, axis=0)
+    deriv_y = np.gradient(map, axis=1)
+    # normalize to 0-1
+    # deriv_x = (deriv_x - deriv_x.min()) / (deriv_x.max() - deriv_x.min())
+    # deriv_y = (deriv_y - deriv_y.min()) / (deriv_y.max() - deriv_y.min())
+    return map, deriv_x, deriv_y
