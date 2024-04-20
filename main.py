@@ -27,6 +27,7 @@ class GameEngine:
 
         self.clock = pg.time.Clock()
         self.delta_time = 0
+        self.total_time = 0
         self.running = True
 
         self.objects = []
@@ -40,6 +41,7 @@ class GameEngine:
     def run(self):
         while self.running:
             self.delta_time = self.clock.tick(60) / 1000.0
+            self.total_time += self.delta_time
             self.events()
             self.update()
             self.render()
@@ -50,7 +52,8 @@ class GameEngine:
                 self.running = False
 
     def update(self):
-        pass
+        for obj in self.objects:
+            obj.update()
 
     def render(self):
         self.ctx.clear(color=glm.vec3(1, 0.16, 0.25))
@@ -71,7 +74,7 @@ class GameEngine:
 
 
 def main():
-    game = GameEngine(25, 40, 30)
+    game = GameEngine(60, 90, 10)
     game.run()
 
 

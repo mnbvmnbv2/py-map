@@ -1,6 +1,7 @@
 import numpy as np
 from meshes.base_mesh import BaseMesh
 from generation import basic_map, map_from_pooled_noise
+import glm
 
 
 class MapMesh(BaseMesh):
@@ -17,6 +18,13 @@ class MapMesh(BaseMesh):
         self.format_size = sum(int(fmt[:1]) for fmt in self.vbo_format.split())
         self.attrs = ("in_position", "in_normal")
         self.vao = self.get_vao()
+
+    def update(self):
+        sun_x = np.cos(self.app.total_time) * 0.4 + 0.5
+        sun_y = np.sin(self.app.total_time) * 0.4 + 0.5
+        sun_z = 0.5  # np.sin(self.app.total_time) * 0.4 + 0.5
+        print(sun_x, sun_y)
+        self.program["sun_dir"].write(glm.vec3(sun_x, sun_y, sun_z))
 
     def get_vertex_data(self):
         height_map, der_x, der_y = basic_map(self.width + 1, self.height + 1)
