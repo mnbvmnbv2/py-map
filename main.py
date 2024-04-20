@@ -6,19 +6,18 @@ from meshes.map_mesh import MapMesh
 
 
 class GameEngine:
-    def __init__(self, width, height) -> None:
+    def __init__(self, width: int, height: int, block_size: int) -> None:
         self.width = width
         self.height = height
+        self.block_size = block_size
 
         pg.init()
         pg.display.gl_set_attribute(pg.GL_CONTEXT_MINOR_VERSION, 3)
         pg.display.gl_set_attribute(pg.GL_CONTEXT_MAJOR_VERSION, 3)
-        pg.display.gl_set_attribute(
-            pg.GL_CONTEXT_PROFILE_MASK, pg.GL_CONTEXT_PROFILE_CORE
-        )
+        pg.display.gl_set_attribute(pg.GL_CONTEXT_PROFILE_MASK, pg.GL_CONTEXT_PROFILE_CORE)
         pg.display.gl_set_attribute(pg.GL_MULTISAMPLEBUFFERS, 2)  # anti-aliasing
         pg.display.set_mode(
-            (self.height * 30, self.width * 30), pg.DOUBLEBUF | pg.OPENGL
+            (self.height * self.block_size, self.width * self.block_size), pg.DOUBLEBUF | pg.OPENGL
         )
 
         self.ctx = mgl.create_context()
@@ -66,15 +65,13 @@ class GameEngine:
         with open(f"shaders/{name}.frag") as file:
             fragment_shader = file.read()
 
-        program = self.ctx.program(
-            vertex_shader=vertex_shader, fragment_shader=fragment_shader
-        )
+        program = self.ctx.program(vertex_shader=vertex_shader, fragment_shader=fragment_shader)
 
         return program
 
 
 def main():
-    game = GameEngine(25, 40)
+    game = GameEngine(25, 40, 30)
     game.run()
 
 
