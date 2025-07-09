@@ -20,9 +20,9 @@ class MapMesh(BaseMesh):
         self.vao = self.get_vao()
 
     def update(self):
-        sun_x = np.cos(self.app.total_time) * 0.4 + 0.5
-        sun_y = np.sin(self.app.total_time) * 0.4 + 0.5
-        sun_z = 0.5  # np.sin(self.app.total_time) * 0.4 + 0.5
+        sun_x = np.cos(self.app.total_time)
+        sun_y = np.sin(self.app.total_time)
+        sun_z = 0.0
         print(sun_x, sun_y)
         self.program["sun_dir"].write(glm.vec3(sun_x, sun_y, sun_z))
 
