@@ -74,7 +74,7 @@ class GameEngine:
 
 
 def main():
-    game = GameEngine(60, 90, 10)
+    game = GameEngine(800, 1200, 1)
     game.run()
 
 

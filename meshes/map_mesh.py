@@ -22,13 +22,13 @@ class MapMesh(BaseMesh):
     def update(self):
         sun_x = np.cos(self.app.total_time) * 0.4 + 0.5
         sun_y = np.sin(self.app.total_time) * 0.4 + 0.5
-        sun_z = 0.5  # np.sin(self.app.total_time) * 0.4 + 0.5
+        sun_z = 0.01  # np.sin(self.app.total_time) * 0.4 + 0.5
         print(sun_x, sun_y)
         self.program["sun_dir"].write(glm.vec3(sun_x, sun_y, sun_z))
 
     def get_vertex_data(self):
-        height_map, der_x, der_y = basic_map(self.width + 1, self.height + 1)
-        # height_map = map_from_pooled_noise(self.width + 1, self.height + 1)
+        # height_map, der_x, der_y = basic_map(self.width + 1, self.height + 1)
+        height_map, der_x, der_y = map_from_pooled_noise(self.width + 1, self.height + 1)
         normal_map = np.zeros((self.height + 1, self.width + 1, 3))
         normal_map[:, :, 0] = der_x.T
         normal_map[:, :, 1] = der_y.T

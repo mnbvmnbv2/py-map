@@ -29,7 +29,9 @@ def map_from_pooled_noise(
     beta: int = 5,
 ) -> np.array:
     noise = pooled_noise(width, height, alpha, beta) * 80
-    return noise.numpy()
+    deriv_x = np.gradient(noise.numpy(), axis=0)
+    deriv_y = np.gradient(noise.numpy(), axis=1)
+    return noise.numpy(), deriv_x, deriv_y
 
 
 def basic_map(width: int, height: int) -> tuple[np.array, np.array, np.array]:
